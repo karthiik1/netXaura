@@ -16,8 +16,14 @@ const wasmDir = join(dirname(require.resolve("@mediapipe/tasks-vision")), "wasm"
 // node_modules; for builds the files are copied into dist. The model file is
 // separate — see scripts/fetch-models.mjs.
 function mediapipeWasm(): Plugin {
+  // closeBundle fires for vitest runs too, not just `vite build` — without this
+  // guard every test run copies the whole WASM runtime into dist/.
+  let isBuild = false;
   return {
     name: "netxaura:mediapipe-wasm",
+    configResolved(config) {
+      isBuild = config.command === "build";
+    },
     configureServer(server) {
       server.middlewares.use("/mediapipe/wasm", (req, res, next) => {
         const file = (req.url ?? "/").split("?")[0].replace(/^\//, "");
@@ -39,6 +45,7 @@ function mediapipeWasm(): Plugin {
       });
     },
     async closeBundle() {
+      if (!isBuild) return;
       await cp(wasmDir, join(__dirname, "dist", "mediapipe", "wasm"), {
         recursive: true,
       });
