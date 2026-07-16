@@ -216,13 +216,17 @@ describe("two-handed poses", () => {
     expect(bothFist([fist(), makeHand({ thumb: "away", scale: 0.5 })])).toBe(true);
   });
 
-  // KNOWN GAP, pinned deliberately so a change here is a decision, not a
-  // surprise: the one-handed fist requires the index to be folded onto its
-  // knuckle (FIST_FOLD_MAX), but bothFist only checks extension. The identical
-  // hand is "none" alone and a fist when there are two of it.
-  it("bothFist skips the fold guard the one-handed fist applies", () => {
+  // Both paths must agree on what a fist is: a hand the one-handed classifier
+  // refuses to call a fist cannot become one just because there are two of it.
+  // Two fists confirm a whole-workspace move, so this is the expensive one to
+  // get wrong.
+  it("applies the same fold guard as the one-handed fist", () => {
     const reaching = makeHand({ indexReaching: true, thumb: "touch" });
     expect(classifyOneHand(reaching, 0.9).gesture).not.toBe("fist");
-    expect(bothFist([reaching, reaching])).toBe(true);
+    expect(bothFist([reaching, reaching])).toBe(false);
+  });
+
+  it("still accepts a real pair of fists", () => {
+    expect(bothFist([fist(), fist()])).toBe(true);
   });
 });

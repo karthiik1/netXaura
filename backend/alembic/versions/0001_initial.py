@@ -52,7 +52,11 @@ def upgrade() -> None:
         sa.Column("owner_device_id", sa.String(36), nullable=False),
         sa.Column("type", sa.Enum("code", "rich_text", name="tabtype"), nullable=False),
         sa.Column("title", sa.String(160), nullable=False, server_default="Untitled"),
-        sa.Column("content", mysql.LONGTEXT(), nullable=False),
+        # Portable, exactly as models.py declares it: LONGTEXT on MySQL, plain
+        # TEXT elsewhere. Naming the dialect type outright made this migration
+        # MySQL-only — SQLite cannot render LONGTEXT, so `alembic upgrade head`
+        # died here mid-run and left a half-created schema behind.
+        sa.Column("content", sa.Text().with_variant(mysql.LONGTEXT(), "mysql"), nullable=False),
         sa.Column("language", sa.String(40), nullable=True),
         sa.Column("created_at", sa.DateTime(), server_default=sa.func.now()),
         sa.Column("updated_at", sa.DateTime(), server_default=sa.func.now()),

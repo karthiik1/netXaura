@@ -57,6 +57,11 @@ export function pinchDistance(h: Hand) {
   return dist(h[THUMB_TIP], h[INDEX_TIP]) / handSize(h);
 }
 
+/** How far the index tip sits from its own knuckle, over hand size. */
+export function indexFold(h: Hand) {
+  return dist(h[INDEX_TIP], h[INDEX_MCP]) / handSize(h);
+}
+
 export interface Classified {
   gesture: GestureName;
   confidence: number;
@@ -91,8 +96,7 @@ export function classifyOneHand(h: Hand, presence: number): Classified {
   // Fist: all fingers curled AND the index folded all the way back to its own
   // knuckle. The fold test (not tip↔wrist reach) is what keeps an index that
   // reaches forward to the thumb from being misread as a fist.
-  const indexFold = dist(h[INDEX_TIP], h[INDEX_MCP]) / handSize(h);
-  if (!index && !middle && !ring && !pinky && indexFold < FIST_FOLD_MAX) {
+  if (isFist(h)) {
     return { gesture: "fist", confidence: presence };
   }
   // Index point: index up, the rest curled.
@@ -115,15 +119,19 @@ export function bothOpen(hands: Hand[]) {
   );
 }
 
-export function bothFist(hands: Hand[]) {
+// A closed hand for the purposes of a fist: every finger curled AND the index
+// folded back onto its own knuckle. Shared by the one- and two-handed paths so
+// they agree on what a fist is.
+function isFist(h: Hand) {
   return (
-    hands.length === 2 &&
-    hands.every(
-      (h) =>
-        !isExtended(h, INDEX_TIP) &&
-        !isExtended(h, MIDDLE_TIP) &&
-        !isExtended(h, RING_TIP) &&
-        !isExtended(h, PINKY_TIP),
-    )
+    !isExtended(h, INDEX_TIP) &&
+    !isExtended(h, MIDDLE_TIP) &&
+    !isExtended(h, RING_TIP) &&
+    !isExtended(h, PINKY_TIP) &&
+    indexFold(h) < FIST_FOLD_MAX
   );
+}
+
+export function bothFist(hands: Hand[]) {
+  return hands.length === 2 && hands.every(isFist);
 }
