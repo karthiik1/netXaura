@@ -1,0 +1,11 @@
+# Host node_modules holds native binaries built for the host OS; copying them
+# over the ones installed in the image breaks vite/esbuild inside the container.
+node_modules
+dist
+
+# Never bake local config into an image layer.
+.env
+.env.*
+!.env.example
+
+.claude

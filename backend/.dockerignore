@@ -1,0 +1,13 @@
+# A host virtualenv holds platform-specific binaries and is rebuilt in the image
+# from requirements.txt anyway.
+.venv
+
+# Never bake local config (DB credentials) into an image layer.
+.env
+.env.*
+!.env.example
+
+__pycache__
+*.pyc
+.pytest_cache
+*.db
