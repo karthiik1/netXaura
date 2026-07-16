@@ -1,0 +1,890 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NetXaura API",
+    "summary": "Gesture-driven cross-device collaboration backend.",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Liveness probe",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces": {
+      "post": {
+        "tags": [
+          "workspaces"
+        ],
+        "summary": "Create a workspace",
+        "operationId": "create_workspace_api_v1_workspaces_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkspaceCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkspaceCreated"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{code}/join": {
+      "post": {
+        "tags": [
+          "workspaces"
+        ],
+        "summary": "Join a workspace by code",
+        "operationId": "join_workspace_api_v1_workspaces__code__join_post",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JoinResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{code}/members": {
+      "get": {
+        "tags": [
+          "workspaces"
+        ],
+        "summary": "List connected members",
+        "operationId": "list_members_api_v1_workspaces__code__members_get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemberOut"
+                  },
+                  "title": "Response List Members Api V1 Workspaces  Code  Members Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{code}/transfers/history": {
+      "get": {
+        "tags": [
+          "workspaces"
+        ],
+        "summary": "Recent transfer history (paginated, newest first)",
+        "operationId": "transfer_history_api_v1_workspaces__code__transfers_history_get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Return rows with id < before",
+              "title": "Before"
+            },
+            "description": "Return rows with id < before"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TransferHistoryOut"
+                  },
+                  "title": "Response Transfer History Api V1 Workspaces  Code  Transfers History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/workspaces/{code}/tabs": {
+      "get": {
+        "tags": [
+          "tabs"
+        ],
+        "summary": "List tabs",
+        "operationId": "list_tabs_api_v1_workspaces__code__tabs_get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TabOut"
+                  },
+                  "title": "Response List Tabs Api V1 Workspaces  Code  Tabs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "tabs"
+        ],
+        "summary": "Create a tab",
+        "operationId": "create_tab_api_v1_workspaces__code__tabs_post",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Code"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TabCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TabOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tabs/{tab_id}": {
+      "get": {
+        "tags": [
+          "tabs"
+        ],
+        "summary": "Fetch one tab",
+        "operationId": "get_tab_api_v1_tabs__tab_id__get",
+        "parameters": [
+          {
+            "name": "tab_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tab Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TabOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "tabs"
+        ],
+        "summary": "Update a tab (autosave)",
+        "operationId": "update_tab_api_v1_tabs__tab_id__patch",
+        "parameters": [
+          {
+            "name": "tab_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tab Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TabUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TabOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "tabs"
+        ],
+        "summary": "Close a tab",
+        "operationId": "delete_tab_api_v1_tabs__tab_id__delete",
+        "parameters": [
+          {
+            "name": "tab_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Tab Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "JoinRequest": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "maxLength": 36,
+            "minLength": 8,
+            "title": "Device Id"
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Display Name"
+          },
+          "auth_token": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auth Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "display_name"
+        ],
+        "title": "JoinRequest"
+      },
+      "JoinResult": {
+        "properties": {
+          "member": {
+            "$ref": "#/components/schemas/MemberOut"
+          },
+          "members": {
+            "items": {
+              "$ref": "#/components/schemas/MemberOut"
+            },
+            "type": "array",
+            "title": "Members"
+          },
+          "tabs": {
+            "items": {
+              "$ref": "#/components/schemas/TabOut"
+            },
+            "type": "array",
+            "title": "Tabs"
+          },
+          "auth_token": {
+            "type": "string",
+            "title": "Auth Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "member",
+          "members",
+          "tabs",
+          "auth_token"
+        ],
+        "title": "JoinResult"
+      },
+      "MemberOut": {
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "title": "Device Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "is_connected": {
+            "type": "boolean",
+            "title": "Is Connected"
+          },
+          "joined_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Joined At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "device_id",
+          "display_name",
+          "is_connected",
+          "joined_at",
+          "last_seen_at"
+        ],
+        "title": "MemberOut"
+      },
+      "TabCreate": {
+        "properties": {
+          "owner_device_id": {
+            "type": "string",
+            "title": "Owner Device Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TabType",
+            "default": "code"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "default": "Untitled"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "default": ""
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "required": [
+          "owner_device_id"
+        ],
+        "title": "TabCreate"
+      },
+      "TabOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "workspace_id": {
+            "type": "string",
+            "title": "Workspace Id"
+          },
+          "owner_device_id": {
+            "type": "string",
+            "title": "Owner Device Id"
+          },
+          "type": {
+            "$ref": "#/components/schemas/TabType"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "workspace_id",
+          "owner_device_id",
+          "type",
+          "title",
+          "content",
+          "language",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "TabOut"
+      },
+      "TabType": {
+        "type": "string",
+        "enum": [
+          "code",
+          "rich_text"
+        ],
+        "title": "TabType"
+      },
+      "TabUpdate": {
+        "properties": {
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Content"
+          },
+          "language": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Language"
+          }
+        },
+        "type": "object",
+        "title": "TabUpdate"
+      },
+      "TransferHistoryOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sender_device_id": {
+            "type": "string",
+            "title": "Sender Device Id"
+          },
+          "receiver_device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiver Device Id"
+          },
+          "transfer_type": {
+            "$ref": "#/components/schemas/TransferType"
+          },
+          "payload_preview": {
+            "type": "string",
+            "title": "Payload Preview"
+          },
+          "status": {
+            "$ref": "#/components/schemas/TransferStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sender_device_id",
+          "receiver_device_id",
+          "transfer_type",
+          "payload_preview",
+          "status",
+          "created_at",
+          "completed_at"
+        ],
+        "title": "TransferHistoryOut"
+      },
+      "TransferStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "completed",
+          "expired"
+        ],
+        "title": "TransferStatus"
+      },
+      "TransferType": {
+        "type": "string",
+        "enum": [
+          "selection",
+          "tab",
+          "workspace"
+        ],
+        "title": "TransferType"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WorkspaceCreate": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "type": "object",
+        "title": "WorkspaceCreate"
+      },
+      "WorkspaceCreated": {
+        "properties": {
+          "workspace_id": {
+            "type": "string",
+            "title": "Workspace Id"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "workspace_id",
+          "code"
+        ],
+        "title": "WorkspaceCreated"
+      }
+    }
+  }
+}

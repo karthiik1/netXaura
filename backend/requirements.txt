@@ -1,0 +1,9 @@
+fastapi>=0.111
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.2
+sqlalchemy>=2.0
+asyncmy>=0.2.9
+alembic>=1.13
+websockets>=12.0
+python-dotenv>=1.0

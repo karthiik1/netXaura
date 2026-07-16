@@ -1,0 +1,39 @@
+# NetXaura full stack (§10.8). `docker compose up` then open two browser tabs at
+# http://localhost:5173 to try a transfer between them.
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: netxaura
+      MYSQL_USER: netxaura
+      MYSQL_PASSWORD: netxaura
+      MYSQL_ROOT_PASSWORD: root
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: mysql+asyncmy://netxaura:netxaura@mysql:3306/netxaura
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+      VITE_WS_URL: ws://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend

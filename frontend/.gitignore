@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.env
+
+# fetched by `npm run fetch:models` — large binary, not committed
+public/models/*.task

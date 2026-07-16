@@ -1,0 +1,15 @@
+[tool.ruff]
+line-length = 90
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# B008 is FastAPI's idiomatic Depends()/Query() default pattern, not a bug.
+ignore = ["B008", "UP042"]
+
+[tool.black]
+line-length = 90
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

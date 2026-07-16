@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sunset-dusk glass palette. Colors are space-separated RGB channels so
+   Tailwind's <alpha-value> mechanism works. The UI floats as translucent
+   glass over a low-poly twilight cityscape (see landing/SunsetCityscape). */
+:root {
+  --ink: 23 15 41; /* #170F29 void-purple app background */
+  --surface: 45 27 78; /* #2D1B4E deep purple — glass card base */
+  --panel: 36 21 55; /* inset panels */
+  --line: 88 66 122; /* #58427A hairline borders on dark glass */
+  --text: 251 248 244; /* #FBF8F4 warm off-white */
+  --muted: 180 168 200; /* lavender-grey, hue-biased toward the ground */
+  --aura: 244 162 97; /* #F4A261 peach — primary accent */
+  --signal: 231 111 81; /* #E76F51 coral */
+  --warm: 255 138 118; /* soft coral-red for errors */
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background:
+    radial-gradient(1100px 620px at 50% 118%, rgb(var(--signal) / 0.22), transparent 62%),
+    radial-gradient(900px 560px at 85% -12%, rgb(var(--surface) / 0.9), transparent 58%),
+    radial-gradient(760px 520px at -8% 108%, rgb(var(--aura) / 0.12), transparent 55%),
+    rgb(var(--ink));
+  color: rgb(var(--text));
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* Focus visibility floor (a11y). */
+:focus-visible { outline: 2px solid rgb(var(--aura)); outline-offset: 2px; }
+
+@layer components {
+  /* The glass system (§spec 5): every floating surface shares this recipe. */
+  .glass {
+    background: rgb(255 255 255 / 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    box-shadow: 0 18px 50px -22px rgb(0 0 0 / 0.6);
+  }
+  .glass-strong {
+    background: rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgb(255 255 255 / 0.16);
+    box-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.65);
+  }
+}
+
+/* Brand wordmark sheen: at rest the text is plain off-white; on hover a warm
+   peach→coral band sweeps once across the letters. The gradient image is 3×
+   the text width with the color band in the middle third, so sliding the
+   background from 0% to 100% passes the band through the visible window. */
+.brand-wordmark {
+  background-image: linear-gradient(
+    100deg,
+    rgb(var(--text)) 0%,
+    rgb(var(--text)) 38%,
+    rgb(var(--aura)) 48%,
+    rgb(var(--signal)) 55%,
+    rgb(var(--text)) 65%,
+    rgb(var(--text)) 100%
+  );
+  background-size: 300% 100%;
+  background-position: 0% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  transition: background-position 0.9s ease;
+}
+.group:hover .brand-wordmark,
+.brand-wordmark:hover {
+  background-position: 100% 0;
+}
+
+/* Editor gutter: number every top-level block down the left edge. The
+   numbers live in the wrapper's left padding (pl-16) and never take part in
+   selection or copy. */
+.editor-lines .tiptap { counter-reset: editor-line; }
+.editor-lines .tiptap > * { position: relative; }
+.editor-lines .tiptap > *::before {
+  counter-increment: editor-line;
+  content: counter(editor-line);
+  position: absolute;
+  left: -3.25rem;
+  top: 0;
+  width: 2.25rem;
+  text-align: right;
+  /* Same font size & line-height as the block so the number sits on the same
+     first-line axis as the text; the mono face + muted color keep it quiet. */
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 400;
+  font-style: normal;
+  color: rgb(var(--muted) / 0.45);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Rich-text editor content, styled explicitly (no Typography plugin) so the
+   toolbar's formatting is visible. */
+.tiptap { outline: none; color: rgb(var(--text)); line-height: 1.7; }
+.tiptap:focus { outline: none; }
+.tiptap p { margin: 0 0 0.6em; }
+.tiptap h1 { font-size: 1.9rem; font-weight: 700; margin: 0.5em 0 0.35em; line-height: 1.2; }
+.tiptap h2 { font-size: 1.45rem; font-weight: 600; margin: 0.5em 0 0.3em; line-height: 1.25; }
+.tiptap h3 { font-size: 1.2rem; font-weight: 600; margin: 0.5em 0 0.3em; }
+.tiptap ul { list-style: disc; padding-left: 1.5em; margin: 0 0 0.6em; }
+.tiptap ol { list-style: decimal; padding-left: 1.5em; margin: 0 0 0.6em; }
+.tiptap li { margin: 0.15em 0; }
+.tiptap li > p { margin: 0; }
+.tiptap u { text-decoration: underline; }
+.tiptap s { text-decoration: line-through; }
+.tiptap strong { font-weight: 700; }
+.tiptap em { font-style: italic; }
+.tiptap blockquote {
+  border-left: 3px solid rgb(var(--aura) / 0.6);
+  padding-left: 0.9em;
+  margin: 0.4em 0 0.6em;
+  color: rgb(var(--muted));
+  font-style: italic;
+}
+.tiptap code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  background: rgb(var(--panel));
+  border: 1px solid rgb(var(--line));
+  border-radius: 4px;
+  padding: 0.05em 0.35em;
+}
+.tiptap a { color: rgb(var(--aura)); text-decoration: underline; }
+.tiptap hr { border: none; border-top: 1px solid rgb(var(--line)); margin: 1em 0; }
+.tiptap pre {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  line-height: 1.6;
+  background: rgb(var(--panel) / 0.8);
+  border: 1px solid rgb(var(--line));
+  border-radius: 10px;
+  padding: 0.85em 1em;
+  margin: 0.4em 0 0.8em;
+  overflow-x: auto;
+}
+.tiptap pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
