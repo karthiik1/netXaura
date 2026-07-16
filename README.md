@@ -156,8 +156,7 @@ python scripts/smoke_two_clients.py CODE   # drive a real transfer, no webcam
 ```
 netxaura/
 ├── backend/          FastAPI + SQLAlchemy + Alembic + TransferManager
-├── frontend/         React + TS + Tailwind + Monaco/TipTap + MediaPipe
-├── gesture-service/  reserved stub (in-browser detection in V1)
+├── frontend/         React + TS + Tailwind + TipTap + MediaPipe
 ├── docs/             openapi.json (source for frontend types) + co-editing plan
 └── scripts/          two-client smoke test
 ```
