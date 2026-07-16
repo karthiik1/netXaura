@@ -26,7 +26,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # jsdom needs ^20.19 || ^22.13 || >=24, and a bare "20" can resolve to
+          # an older 20.x from the runner's tool cache. Pin an LTS that is inside
+          # every dependency's supported range.
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
