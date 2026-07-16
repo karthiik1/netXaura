@@ -207,9 +207,15 @@ export function WorkspaceLayout() {
           return;
         }
         flushActiveContent(); // the moved tab must carry the on-screen content
-        initiate("tab", { tab_id: active.id, title: active.title });
-        tx.beginMove(active);
-        st.removeTab(active.id);
+        // Re-read after the flush: it replaced the tab in the store with one
+        // carrying the on-screen content, so `active` is now a stale copy. The
+        // snapshot below is what comes back if nobody catches this, and handing
+        // back the pre-flush copy would wipe whatever was typed just before the
+        // gesture (autosave is debounced ~800ms behind the editor).
+        const moving = useWorkspaceStore.getState().tabs.find((t) => t.id === active.id) ?? active;
+        initiate("tab", { tab_id: moving.id, title: moving.title });
+        tx.beginMove(moving);
+        st.removeTab(moving.id);
         tx.setOutgoing("pending");
       },
       // Operation 3 step 1 (source): two fingers highlight the active tab for a
@@ -264,9 +270,13 @@ export function WorkspaceLayout() {
           return;
         }
         flushActiveContent(); // the active tab must carry its on-screen content
+        // Re-read after the flush for the same reason as sendActiveTabMove: the
+        // flush replaced the active tab in the store, so `tabs` holds a stale
+        // copy of it, and these snapshots are what come back on expiry.
+        const moving = useWorkspaceStore.getState().tabs;
         initiate("workspace", {});
-        tx.beginWorkspaceMove(tabs);
-        tabs.forEach((t) => st.removeTab(t.id));
+        tx.beginWorkspaceMove(moving);
+        moving.forEach((t) => st.removeTab(t.id));
         tx.setOutgoing("pending");
       },
       claim: (transferId: string) => send("transfer_claim", { transfer_id: transferId }),
