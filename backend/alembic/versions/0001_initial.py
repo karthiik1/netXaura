@@ -32,7 +32,15 @@ def upgrade() -> None:
 
     op.create_table(
         "workspace_members",
-        sa.Column("id", sa.BigInteger(), primary_key=True, autoincrement=True),
+        sa.Column(
+            "id",
+            # BIGINT does not alias SQLite's rowid, so it never autoincrements
+            # there — inserts get a NULL PK and fail. Fall back to INTEGER on
+            # SQLite (matches models.py _AUTO_PK); stays BIGINT on MySQL.
+            sa.BigInteger().with_variant(sa.Integer(), "sqlite"),
+            primary_key=True,
+            autoincrement=True,
+        ),
         sa.Column("workspace_id", sa.String(36), nullable=False),
         sa.Column("device_id", sa.String(36), nullable=False),
         sa.Column("display_name", sa.String(80), nullable=False),
@@ -67,7 +75,15 @@ def upgrade() -> None:
 
     op.create_table(
         "transfer_history",
-        sa.Column("id", sa.BigInteger(), primary_key=True, autoincrement=True),
+        sa.Column(
+            "id",
+            # BIGINT does not alias SQLite's rowid, so it never autoincrements
+            # there — inserts get a NULL PK and fail. Fall back to INTEGER on
+            # SQLite (matches models.py _AUTO_PK); stays BIGINT on MySQL.
+            sa.BigInteger().with_variant(sa.Integer(), "sqlite"),
+            primary_key=True,
+            autoincrement=True,
+        ),
         sa.Column("workspace_id", sa.String(36), nullable=False),
         sa.Column("sender_device_id", sa.String(36), nullable=False),
         sa.Column("receiver_device_id", sa.String(36), nullable=True),
@@ -91,7 +107,15 @@ def upgrade() -> None:
 
     op.create_table(
         "app_settings",
-        sa.Column("id", sa.BigInteger(), primary_key=True, autoincrement=True),
+        sa.Column(
+            "id",
+            # BIGINT does not alias SQLite's rowid, so it never autoincrements
+            # there — inserts get a NULL PK and fail. Fall back to INTEGER on
+            # SQLite (matches models.py _AUTO_PK); stays BIGINT on MySQL.
+            sa.BigInteger().with_variant(sa.Integer(), "sqlite"),
+            primary_key=True,
+            autoincrement=True,
+        ),
         sa.Column("workspace_id", sa.String(36), nullable=True),
         sa.Column("key", sa.String(60), nullable=False),
         sa.Column("value", sa.String(255), nullable=False),
