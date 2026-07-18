@@ -4,6 +4,9 @@ pydantic>=2.7
 pydantic-settings>=2.2
 sqlalchemy>=2.0
 asyncmy>=0.2.9
+# SQLite async driver — used when DATABASE_URL is sqlite+aiosqlite (zero-setup
+# demo/deploy without a separate MySQL). Was previously dev-only.
+aiosqlite>=0.20
 # MySQL 8 authenticates with caching_sha2_password by default, and asyncmy
 # needs cryptography to complete that handshake — without it the very first
 # connection dies with "'cryptography' package is required".
